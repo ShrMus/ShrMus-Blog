@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.shrmus.blog.mapper.BlogPrivilegeMapper">
+  <resultMap id="BlogPrivilegeResultMap" type="cn.shrmus.blog.pojo.BlogPrivilege">
+    <id column="privilege_id" jdbcType="INTEGER" property="id" />
+    <result column="privilege_name" jdbcType="VARCHAR" property="name" />
+    <result column="privilege_url" jdbcType="VARCHAR" property="url" />
+    <result column="privilege_parent_id" jdbcType="VARCHAR" property="pid" />
+    <result column="privilege_icon" jdbcType="VARCHAR" property="icon" />
+    <association column="privilege_parent_id" property="parentPrivilege" select="getPrivilegeById"></association>
+    <collection column="privilege_id" property="childPrivilegeList" select="getChildrenPrivilegeById"></collection>
+  </resultMap>
+
+
+  <!-- 查找父权限为空的权限列表，实际上会查出所有权限 -->
+  <select id="getPrivilegeList" resultMap="BlogPrivilegeResultMap">
+  	select privilege_id,privilege_name,privilege_url,privilege_parent_id,privilege_icon
+  	from blog_privilege
+  	where privilege_parent_id=0
+  </select>
+  
+  <!-- 根据权限id查找权限信息 -->
+  <select id="getPrivilegeById" parameterType="java.lang.Integer" resultMap="BlogPrivilegeResultMap">
+  	select privilege_id,privilege_name,privilege_url,privilege_parent_id,privilege_icon 
+  	from blog_privilege 
+  	where privilege_id=#{id} 
+  </select>
+  
+  <!-- 根据权限名称查找权限信息 -->
+  <select id="getPrivilegeByName" parameterType="java.lang.String" resultMap="BlogPrivilegeResultMap">
+  	select privilege_id,privilege_name,privilege_url,privilege_parent_id,privilege_icon 
+  	from blog_privilege 
+  	where privilege_name=#{name} 
+  </select>
+  
+  <!-- 查找权限id的所有子权限 -->
+  <select id="getChildrenPrivilegeById" parameterType="java.lang.Integer" resultMap="BlogPrivilegeResultMap">
+  	select privilege_id,privilege_name,privilege_url,privilege_parent_id,privilege_icon 
+  	from blog_privilege 
+  	where privilege_parent_id=#{id} 
+  </select>
+  
+  <!-- 添加权限 -->
+  <insert id="addPrivilege" parameterType="cn.shrmus.blog.pojo.BlogPrivilege">
+  	insert into blog_privilege(privilege_name,privilege_url,privilege_parent_id,privilege_icon) 
+  	values(#{name},#{url},#{pid},#{icon}) 
+  </insert>
+  
+  <!-- 修改权限信息 -->
+  <update id="updatePrivilege" parameterType="cn.shrmus.blog.pojo.BlogPrivilege">
+  	update blog_privilege 
+  	set privilege_name=#{name},privilege_url=#{url},privilege_parent_id=#{pid},privilege_icon=#{icon} 
+  	where privilege_id=#{id}
+  </update>
+  
+  <!-- 删除权限 -->
+  <delete id="deletePrivilege" parameterType="java.lang.Integer">
+  	delete from blog_privilege where privilege_id=#{id} 
+  </delete>
+
+</mapper>

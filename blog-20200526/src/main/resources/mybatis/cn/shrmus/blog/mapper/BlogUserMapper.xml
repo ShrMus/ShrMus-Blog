@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.shrmus.blog.mapper.BlogUserMapper">
+  <resultMap id="BlogUserResultMap" type="cn.shrmus.blog.pojo.BlogUser">
+    <id column="user_id" jdbcType="INTEGER" property="id" />
+    <result column="user_username" jdbcType="VARCHAR" property="username" />
+    <result column="user_password" jdbcType="VARCHAR" property="password" />
+    <result column="user_openid" jdbcType="VARCHAR" property="openid" />
+    <result column="user_nickname" jdbcType="VARCHAR" property="nickname" />
+    <result column="user_realname" jdbcType="VARCHAR" property="realname" />
+    <result column="user_phone" jdbcType="VARCHAR" property="phone" />
+    <result column="user_email" jdbcType="VARCHAR" property="email" />
+    <result column="user_gender" jdbcType="INTEGER" property="gender" />
+    <result column="user_icon" jdbcType="VARCHAR" property="icon" />
+    <result column="user_integral" jdbcType="INTEGER" property="integral" />
+    <collection column="user_id" property="userRoleList" select="getRoleByUserId" />
+    <collection column="user_id" property="privilegeList" select="getPrivilegeListByUserId" />
+  </resultMap>
+  
+  <!-- 用户登录 -->
+  <select id="login" parameterType="cn.shrmus.blog.pojo.BlogUser" resultMap="BlogUserResultMap">
+  	select user_id,user_username,user_password,user_openid,user_nickname,user_realname,user_phone,
+  	user_email,user_gender,user_icon,user_integral 
+  	from blog_user 
+  	where user_username=#{username} and user_password=#{password} 
+  </select>
+  
+  <!-- 用户通过QQ登录 -->
+  <select id="loginByQQ" parameterType="cn.shrmus.blog.pojo.BlogUser" resultMap="BlogUserResultMap">
+  	select user_id,user_username,user_password,user_openid,user_nickname,user_realname,user_phone,
+  	user_email,user_gender,user_icon,user_integral 
+  	from blog_user 
+  	where user_openid=#{openid} 
+  </select>
+  
+  <!-- 绑定已有账号 -->
+  <update id="binding" parameterType="cn.shrmus.blog.pojo.BlogUser">
+  	update blog_user set 
+  	<if test="null == nickname">
+  		user_nickname=#{nickname},
+  	</if>
+  	<if test="null == icon">
+  		user_icon=#{icon},
+  	</if>
+  		user_openid=#{openid} 
+  	where user_id=#{id} 
+  </update>
+  
+  <!-- 添加用户 -->
+  <insert id="addUser" parameterType="cn.shrmus.blog.pojo.BlogUser">
+  	insert into blog_user(user_username,user_password,user_openid,user_nickname,user_realname,user_phone,
+  	user_email,user_gender,user_icon,user_integral) 
+	VALUES(#{username},#{password},#{openid},#{nickname},#{realname},#{phone},#{email},#{gender},#{icon},#{integral})
+  </insert>
+  
+  <!-- 注册用户 -->
+  <insert id="regUser" parameterType="cn.shrmus.blog.pojo.BlogUser">
+  	insert into blog_user(user_username,user_password,user_openid,user_nickname,user_realname,user_phone,
+  	user_email,user_gender,user_icon,user_integral) 
+	VALUES(#{username},#{password},#{openid},#{nickname},#{realname},#{phone},#{email},#{gender},#{icon},#{integral}) 
+  </insert>
+  
+  <!-- 查找最大的主键，这种方式在并发量高的情况下不可使用 -->
+  <select id="getMaxPrimaryKey" resultType="java.lang.Integer">
+  	select max(user_id) from blog_user 
+  </select>
+  
+  <!-- 根据id查找用户 -->
+  <select id="getUserByUserId" parameterType="java.lang.Integer" resultMap="BlogUserResultMap">
+  	select user_id,user_username,user_password,user_openid,user_nickname,user_realname,user_phone,
+  	user_email,user_gender,user_icon,user_integral 
+  	from blog_user 
+  	where user_id=#{id} 
+  </select>
+  
+  <!-- 根据用户名查找用户 -->
+  <select id="getUserByUsername" parameterType="java.lang.String" resultMap="BlogUserResultMap">
+  	select user_id,user_username,user_password,user_openid,user_nickname,user_realname,user_phone,
+  	user_email,user_gender,user_icon,user_integral 
+  	from blog_user 
+  	where user_username=#{username} 
+  </select>
+  
+  <!-- 根据id删除用户 -->
+  <delete id="deleleUserByUserId" parameterType="java.lang.Integer">
+  	delete from blog_user 
+  	where user_id=#{userId} 
+  </delete>
+  
+  <!-- 修改用户的基本信息 --><!-- ,user_password=#{password}  -->
+  <update id="updateUser" parameterType="cn.shrmus.blog.pojo.BlogUser">
+  	update blog_user 
+  	<set>
+	  	<if test="openid != null">
+	  		user_openid=#{openid},
+	  	</if>
+	  	<if test="nickname != null">
+	  		user_nickname=#{nickname},
+	  	</if>
+	  	<if test="password != null">
+	  		user_password=#{password},
+	  	</if>
+	  	<if test="icon != null">
+	  		user_icon=#{icon},
+	  	</if>
+	  	<if test="realname != null">
+	  		user_realname=#{realname},
+	  	</if>
+	  	<if test="phone != null">
+	  		user_phone=#{phone},
+	  	</if>
+	  	<if test="email != null">
+	  		user_email=#{email},
+	  	</if>
+	  	<if test="gender != null">
+	  		user_gender=#{gender},
+	  	</if>
+	  	<if test="integral != null">
+	  		user_integral=#{integral} 
+	  	</if>
+  	</set>
+  	where user_id=#{id} 
+  </update>
+  
+  <!-- 在blog_user_privilege表中根据id查找用户拥有的权限 -->
+  <select id="getPrivilegeListByUserId" parameterType="java.lang.Integer" resultMap="cn.shrmus.blog.mapper.BlogPrivilegeMapper.BlogPrivilegeResultMap">
+  	select distinct p.privilege_id,p.privilege_name,p.privilege_url,p.privilege_parent_id,p.privilege_icon 
+  	from blog_user_privilege up 
+  	left join blog_privilege p on up.privilege_id=p.privilege_id 
+  	where user_id=#{userId}  
+  </select>
+  
+  <!-- 查询所有用户的信息，包括角色信息 -->
+  <select id="getUserList" resultMap="BlogUserResultMap">
+  	select user_id,user_username,user_password,user_openid,user_nickname,user_realname,user_phone,
+  	user_email,user_gender,user_icon,user_integral 
+  	from blog_user 
+  </select>
+  
+  <!-- 根据用户id查找用户的角色信息 -->
+  <select id="getRoleByUserId" parameterType="java.lang.Integer" resultMap="cn.shrmus.blog.mapper.BlogRoleMapper.BlogRoleResultMap">
+  	select r.role_id,r.role_name 
+  	from blog_user_role ur 
+  	left join blog_role r on 
+  	ur.role_id=r.role_id 
+  	where user_id=#{userId} 
+  </select>
+  
+  <!-- 添加用户的角色 -->
+  <insert id="addRoleForUser" parameterType="java.lang.Integer">
+  	insert into blog_user_role(user_id,role_id) 
+  	values(#{userId},#{roleId}) 
+  </insert>
+  
+  <!-- 修改用户的角色 -->
+  <update id="updateRoleByUserId" parameterType="java.lang.Integer">
+  	update blog_user_role set role_id=#{roleId} 
+  	where user_id=#{userId} 
+  </update>
+  
+  <!-- 删除用户的全部权限，在修改用户角色的时候要用到 -->
+  <delete id="deleteAllPrivilege" parameterType="java.lang.Integer">
+  	delete from blog_user_privilege 
+  	where user_id=#{userId} 
+  </delete>
+  
+  <!-- 在 blog_user_privilege表中添加用户的权限-->
+  <insert id="addPrivilegeByUserId" parameterType="java.lang.Integer">
+  	insert into blog_user_privilege(user_id,privilege_id) 
+  	values(#{userId},#{privilegeId})
+  </insert>
+  
+  <delete id="deletePrivilegeByUserId" parameterType="java.lang.Integer">
+  	delete from blog_user_privilege 
+  	where user_id=#{userId} and privilege_id=#{privilegeId} 
+  </delete>
+</mapper>

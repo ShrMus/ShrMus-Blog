@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.shrmus.blog.mapper.BlogArticleCommentMapper">
+  <resultMap id="BaseResultMap" type="cn.shrmus.blog.pojo.BlogArticleComment">
+    <id column="article_comment_id" jdbcType="INTEGER" property="articleCommentId" />
+    <result column="article_id" jdbcType="INTEGER" property="articleId" />
+    <result column="article_commment_isreply" jdbcType="INTEGER" property="articleCommmentIsreply" />
+    <result column="user_id_author" jdbcType="INTEGER" property="userIdAuthor" />
+    <result column="user_id_reply" jdbcType="INTEGER" property="userIdReply" />
+    <result column="article_comment_publish_time" jdbcType="TIMESTAMP" property="articleCommentPublishTime" />
+    <result column="article_comment_pid" jdbcType="INTEGER" property="articleCommentPid" />
+    <association property="blogUserAuthor" column="user_id_author" select="cn.shrmus.blog.mapper.BlogUserMapper.getUserByUserId" />
+    <association property="blogUserReply" column="user_id_reply" select="cn.shrmus.blog.mapper.BlogUserMapper.getUserByUserId" />
+    <association property="blogArticleCommentList" column="article_comment_id" select="cn.shrmus.blog.mapper.BlogArticleCommentMapper.selectByCommentId" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="cn.shrmus.blog.pojo.BlogArticleComment">
+    <result column="article_comment_content" jdbcType="LONGVARCHAR" property="articleCommentContent" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    article_comment_id, article_id, article_commment_isreply, user_id_author, user_id_reply, 
+    article_comment_publish_time, article_comment_pid
+  </sql>
+  <sql id="Blob_Column_List">
+    article_comment_content
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="cn.shrmus.blog.pojo.BlogArticleCommentExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from blog_article_comment
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="cn.shrmus.blog.pojo.BlogArticleCommentExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from blog_article_comment
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from blog_article_comment
+    where article_comment_id = #{articleCommentId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from blog_article_comment
+    where article_comment_id = #{articleCommentId,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="cn.shrmus.blog.pojo.BlogArticleCommentExample">
+    delete from blog_article_comment
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="cn.shrmus.blog.pojo.BlogArticleComment">
+    insert into blog_article_comment (article_comment_id, article_id, article_commment_isreply, 
+      user_id_author, user_id_reply, article_comment_publish_time, 
+      article_comment_pid, article_comment_content
+      )
+    values (#{articleCommentId,jdbcType=INTEGER}, #{articleId,jdbcType=INTEGER}, #{articleCommmentIsreply,jdbcType=INTEGER}, 
+      #{userIdAuthor,jdbcType=INTEGER}, #{userIdReply,jdbcType=INTEGER}, #{articleCommentPublishTime,jdbcType=TIMESTAMP}, 
+      #{articleCommentPid,jdbcType=INTEGER}, #{articleCommentContent,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="cn.shrmus.blog.pojo.BlogArticleComment">
+    insert into blog_article_comment
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="articleCommentId != null">
+        article_comment_id,
+      </if>
+      <if test="articleId != null">
+        article_id,
+      </if>
+      <if test="articleCommmentIsreply != null">
+        article_commment_isreply,
+      </if>
+      <if test="userIdAuthor != null">
+        user_id_author,
+      </if>
+      <if test="userIdReply != null">
+        user_id_reply,
+      </if>
+      <if test="articleCommentPublishTime != null">
+        article_comment_publish_time,
+      </if>
+      <if test="articleCommentPid != null">
+        article_comment_pid,
+      </if>
+      <if test="articleCommentContent != null">
+        article_comment_content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="articleCommentId != null">
+        #{articleCommentId,jdbcType=INTEGER},
+      </if>
+      <if test="articleId != null">
+        #{articleId,jdbcType=INTEGER},
+      </if>
+      <if test="articleCommmentIsreply != null">
+        #{articleCommmentIsreply,jdbcType=INTEGER},
+      </if>
+      <if test="userIdAuthor != null">
+        #{userIdAuthor,jdbcType=INTEGER},
+      </if>
+      <if test="userIdReply != null">
+        #{userIdReply,jdbcType=INTEGER},
+      </if>
+      <if test="articleCommentPublishTime != null">
+        #{articleCommentPublishTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="articleCommentPid != null">
+        #{articleCommentPid,jdbcType=INTEGER},
+      </if>
+      <if test="articleCommentContent != null">
+        #{articleCommentContent,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="cn.shrmus.blog.pojo.BlogArticleCommentExample" resultType="java.lang.Long">
+    select count(*) from blog_article_comment
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update blog_article_comment
+    <set>
+      <if test="record.articleCommentId != null">
+        article_comment_id = #{record.articleCommentId,jdbcType=INTEGER},
+      </if>
+      <if test="record.articleId != null">
+        article_id = #{record.articleId,jdbcType=INTEGER},
+      </if>
+      <if test="record.articleCommmentIsreply != null">
+        article_commment_isreply = #{record.articleCommmentIsreply,jdbcType=INTEGER},
+      </if>
+      <if test="record.userIdAuthor != null">
+        user_id_author = #{record.userIdAuthor,jdbcType=INTEGER},
+      </if>
+      <if test="record.userIdReply != null">
+        user_id_reply = #{record.userIdReply,jdbcType=INTEGER},
+      </if>
+      <if test="record.articleCommentPublishTime != null">
+        article_comment_publish_time = #{record.articleCommentPublishTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.articleCommentPid != null">
+        article_comment_pid = #{record.articleCommentPid,jdbcType=INTEGER},
+      </if>
+      <if test="record.articleCommentContent != null">
+        article_comment_content = #{record.articleCommentContent,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update blog_article_comment
+    set article_comment_id = #{record.articleCommentId,jdbcType=INTEGER},
+      article_id = #{record.articleId,jdbcType=INTEGER},
+      article_commment_isreply = #{record.articleCommmentIsreply,jdbcType=INTEGER},
+      user_id_author = #{record.userIdAuthor,jdbcType=INTEGER},
+      user_id_reply = #{record.userIdReply,jdbcType=INTEGER},
+      article_comment_publish_time = #{record.articleCommentPublishTime,jdbcType=TIMESTAMP},
+      article_comment_pid = #{record.articleCommentPid,jdbcType=INTEGER},
+      article_comment_content = #{record.articleCommentContent,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update blog_article_comment
+    set article_comment_id = #{record.articleCommentId,jdbcType=INTEGER},
+      article_id = #{record.articleId,jdbcType=INTEGER},
+      article_commment_isreply = #{record.articleCommmentIsreply,jdbcType=INTEGER},
+      user_id_author = #{record.userIdAuthor,jdbcType=INTEGER},
+      user_id_reply = #{record.userIdReply,jdbcType=INTEGER},
+      article_comment_publish_time = #{record.articleCommentPublishTime,jdbcType=TIMESTAMP},
+      article_comment_pid = #{record.articleCommentPid,jdbcType=INTEGER}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="cn.shrmus.blog.pojo.BlogArticleComment">
+    update blog_article_comment
+    <set>
+      <if test="articleId != null">
+        article_id = #{articleId,jdbcType=INTEGER},
+      </if>
+      <if test="articleCommmentIsreply != null">
+        article_commment_isreply = #{articleCommmentIsreply,jdbcType=INTEGER},
+      </if>
+      <if test="userIdAuthor != null">
+        user_id_author = #{userIdAuthor,jdbcType=INTEGER},
+      </if>
+      <if test="userIdReply != null">
+        user_id_reply = #{userIdReply,jdbcType=INTEGER},
+      </if>
+      <if test="articleCommentPublishTime != null">
+        article_comment_publish_time = #{articleCommentPublishTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="articleCommentPid != null">
+        article_comment_pid = #{articleCommentPid,jdbcType=INTEGER},
+      </if>
+      <if test="articleCommentContent != null">
+        article_comment_content = #{articleCommentContent,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where article_comment_id = #{articleCommentId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="cn.shrmus.blog.pojo.BlogArticleComment">
+    update blog_article_comment
+    set article_id = #{articleId,jdbcType=INTEGER},
+      article_commment_isreply = #{articleCommmentIsreply,jdbcType=INTEGER},
+      user_id_author = #{userIdAuthor,jdbcType=INTEGER},
+      user_id_reply = #{userIdReply,jdbcType=INTEGER},
+      article_comment_publish_time = #{articleCommentPublishTime,jdbcType=TIMESTAMP},
+      article_comment_pid = #{articleCommentPid,jdbcType=INTEGER},
+      article_comment_content = #{articleCommentContent,jdbcType=LONGVARCHAR}
+    where article_comment_id = #{articleCommentId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="cn.shrmus.blog.pojo.BlogArticleComment">
+    update blog_article_comment
+    set article_id = #{articleId,jdbcType=INTEGER},
+      article_commment_isreply = #{articleCommmentIsreply,jdbcType=INTEGER},
+      user_id_author = #{userIdAuthor,jdbcType=INTEGER},
+      user_id_reply = #{userIdReply,jdbcType=INTEGER},
+      article_comment_publish_time = #{articleCommentPublishTime,jdbcType=TIMESTAMP},
+      article_comment_pid = #{articleCommentPid,jdbcType=INTEGER}
+    where article_comment_id = #{articleCommentId,jdbcType=INTEGER}
+  </update>
+  
+  <select id="selectByArticleId" parameterType="java.lang.Integer" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from blog_article_comment
+    where article_id = #{article_id,jdbcType=INTEGER} 
+    order by article_comment_id desc 
+  </select>
+  
+  <select id="selectByCommentId" parameterType="java.lang.Integer" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from blog_article_comment
+    where article_comment_pid = #{article_comment_id,jdbcType=INTEGER} 
+    order by article_comment_id asc 
+  </select>
+  
+</mapper>
